@@ -1,1 +1,70 @@
-{"sections":{"main":{"type":"main-product","blocks":{"offer_DUiENE":{"type":"offer","settings":{"offer_icon":"🏷️","offer_title":"Flat ₹400 Off","offer_subtitle":"On orders above ₹1000","offer_code":"ULLU400"}},"offer_V8fpLN":{"type":"offer","settings":{"offer_icon":"🏷️","offer_title":"Flat ₹500 Off","offer_subtitle":"On orders above ₹5000","offer_code":"ULLU500"}},"offer_g7wNqW":{"type":"offer","settings":{"offer_icon":"🏷️","offer_title":"Flat ₹500 Off","offer_subtitle":"On orders above ₹5000","offer_code":"ULLU500"}}},"block_order":["offer_DUiENE","offer_V8fpLN","offer_g7wNqW"],"settings":{"gallery_auto":true,"gallery_speed":3,"auto_swipe":false,"swipe_speed":20,"delivery_text":"<p>Ships within 1-2 business days. Free standard delivery on orders above ₹499. 10-day hassle-free returns on unused, undamaged items in original packaging.<\/p>"}},"related-products":{"type":"related-products","settings":{"heading":"You may also like","heading_size":"h2","products_to_show":4,"columns_desktop":4,"columns_mobile":"2","color_scheme":"scheme-1","image_ratio":"square","image_shape":"default","show_secondary_image":true,"show_vendor":false,"show_rating":false,"padding_top":36,"padding_bottom":28}}},"order":["main","related-products"]}
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "offer_DUiENE": {
+          "type": "offer",
+          "settings": {
+            "offer_icon": "🏷️",
+            "offer_title": "Flat ₹400 Off",
+            "offer_subtitle": "On orders above ₹1000",
+            "offer_code": "ULLU400"
+          }
+        },
+        "offer_V8fpLN": {
+          "type": "offer",
+          "settings": {
+            "offer_icon": "🏷️",
+            "offer_title": "Flat ₹500 Off",
+            "offer_subtitle": "On orders above ₹5000",
+            "offer_code": "ULLU500"
+          }
+        },
+        "offer_g7wNqW": {
+          "type": "offer",
+          "settings": {
+            "offer_icon": "🏷️",
+            "offer_title": "Flat ₹500 Off",
+            "offer_subtitle": "On orders above ₹5000",
+            "offer_code": "ULLU500"
+          }
+        }
+      },
+      "block_order": [
+        "offer_DUiENE",
+        "offer_V8fpLN",
+        "offer_g7wNqW"
+      ],
+      "settings": {
+        "gallery_auto": true,
+        "gallery_speed": 3,
+        "auto_swipe": false,
+        "swipe_speed": 20,
+        "delivery_text": "<p>Ships within 1-2 business days. Free standard delivery on orders above ₹499. 10-day hassle-free returns on unused, undamaged items in original packaging.<\/p>"
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h2",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": false,
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    }
+  },
+  "order": [
+    "main",
+    "related-products"
+  ]
+}
