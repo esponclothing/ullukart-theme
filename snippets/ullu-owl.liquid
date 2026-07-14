@@ -278,7 +278,8 @@ let sendQuickQuery;
 
     try {
       const baseUrl = 'https://n8n.srv1468559.hstgr.cloud/webhook/35b2c2c1-fa06-4493-b861-8f8cdd4002f4';
-      const finalUrl = `${baseUrl}?chatInput=${encodeURIComponent(text)}&sessionId=ullukart-pure-v1`;
+      const pageCtx = encodeURIComponent(window.location.pathname + window.location.search);
+      const finalUrl = `${baseUrl}?chatInput=${encodeURIComponent(text)}&sessionId=ullukart-pure-v1&pageContext=${pageCtx}`;
 
       const response = await fetch(finalUrl, { method: 'GET' });
       const aiResponseText = await response.text(); 
@@ -288,16 +289,45 @@ let sendQuickQuery;
       ulluResponse.className = 'chat-msg msg-ullu';
       
       let finalMessage = "";
+      let carouselHtml = "";
+      let suggestionsHtml = "";
+
       try {
         const parsed = JSON.parse(aiResponseText);
-        if (Array.isArray(parsed)) {
-          finalMessage = parsed[0].output || parsed[0].reply || aiResponseText;
-        } else if (typeof parsed === 'object') {
-          finalMessage = parsed.output || parsed.reply || aiResponseText;
+        let dataObj = Array.isArray(parsed) ? parsed[0] : parsed;
+        
+        // 1. Text Message
+        finalMessage = dataObj.output || dataObj.reply || aiResponseText;
+
+        // 2. Carousel rendering (if AI returns an array of products in "carousel")
+        if (dataObj.carousel && Array.isArray(dataObj.carousel) && dataObj.carousel.length > 0) {
+          carouselHtml = '<div class="ullukart-carousel">';
+          dataObj.carousel.forEach(item => {
+            carouselHtml += `
+              <a href="${item.link}" class="ullukart-card">
+                <img src="${item.image}" alt="${item.title}">
+                <div class="ullukart-card-info">
+                  <h4>${item.title}</h4>
+                  <p class="ullukart-price">${item.price}</p>
+                </div>
+              </a>
+            `;
+          });
+          carouselHtml += '</div>';
         }
+
+        // 3. Question Suggesting (if AI returns an array of suggestions)
+        if (dataObj.suggestions && Array.isArray(dataObj.suggestions) && dataObj.suggestions.length > 0) {
+          suggestionsHtml = '<div class="ullu-quick-menu" style="margin-top: 10px;">';
+          dataObj.suggestions.forEach(sug => {
+            suggestionsHtml += `<button class="quick-btn" onclick="sendQuickQuery('${sug.replace(/'/g, "\\'")}')">${sug}</button>`;
+          });
+          suggestionsHtml += '</div>';
+        }
+
       } catch(e) { finalMessage = aiResponseText; }
       
-      ulluResponse.innerHTML = finalMessage; 
+      ulluResponse.innerHTML = finalMessage + carouselHtml + suggestionsHtml; 
       chatBody.appendChild(ulluResponse);
       chatBody.scrollTop = chatBody.scrollHeight;
 
