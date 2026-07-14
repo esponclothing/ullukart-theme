@@ -64,7 +64,7 @@
                   {%- endif -%}
                 </div>
 
-                <div class="totals">
+                <div class="totals" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                   <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
                   <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
                 </div>
@@ -235,7 +235,7 @@
             </div>
           `;
           
-          totalValueEl.innerHTML = `<s style="font-size: 0.7em; color: #94a3b8;">${originalPriceHtml}</s>`;
+          totalValueEl.innerHTML = `<span style="font-size: 0.8em; color: #94a3b8;">${originalPriceHtml}</span>`;
           container.insertAdjacentHTML('afterend', discountHtml);
         }
       });
