@@ -105,6 +105,11 @@
               </div>
             {%- else -%}
               <div class="cart__ctas" {{ block.shopify_attributes }}>
+                <div style="display: flex; gap: 8px; margin-bottom: 15px; width: 100%;">
+                  <input type="text" id="ullu-manual-discount" placeholder="Have a coupon code?" style="flex: 1; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none; font-family: 'Outfit', sans-serif; font-size: 14px; background: #f8fafc; color: #0f172a; font-weight: 500;">
+                  <button type="button" onclick="applyManualDiscount()" style="background: #0f172a; color: #ffffff; border: none; border-radius: 8px; padding: 0 20px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.3s;">Apply</button>
+                </div>
+
                 <button
                   type="submit"
                   id="checkout"
@@ -135,6 +140,38 @@
 
 <script src="{{ 'ullu-campaigns.js' | asset_url }}" defer="defer"></script>
 <script>
+  function applyManualDiscount() {
+    const code = document.getElementById('ullu-manual-discount').value.trim();
+    if (code) {
+      const btn = document.querySelector('#ullu-manual-discount').nextElementSibling;
+      btn.innerHTML = 'Applying...';
+      btn.style.opacity = '0.8';
+      window.location.href = `/checkout?discount=${code}`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkoutBtn = document.querySelector('[name="checkout"]');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function(e) {
+        const manualCode = document.getElementById('ullu-manual-discount')?.value.trim();
+        if (manualCode) {
+          const cartForm = document.getElementById('cart') || document.getElementById('CartDrawer-Form');
+          if (cartForm) {
+            let hiddenInput = cartForm.querySelector('input[name="discount"]');
+            if (!hiddenInput) {
+              hiddenInput = document.createElement('input');
+              hiddenInput.type = 'hidden';
+              hiddenInput.name = 'discount';
+              cartForm.appendChild(hiddenInput);
+            }
+            hiddenInput.value = manualCode;
+          }
+        }
+      });
+    }
+  });
+
   function applyVisualCartDiscounts() {
     if (!window.UlluCampaigns || window.UlluCampaigns.length === 0) return;
     

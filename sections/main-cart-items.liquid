@@ -483,12 +483,33 @@
             listEl.innerHTML = '<p class="ullu-no-coupons">No exclusive offers available right now.</p>';
             return;
           }
+
+          let bestCampaignCode = null;
+          let maxDiscountAmount = 0;
+          window.UlluCampaigns.forEach(campaign => {
+            if (cartTotal >= campaign.min_value) {
+              let currentDiscount = 0;
+              if (campaign.discount_type === 'percentage') {
+                currentDiscount = cartTotal * (campaign.discount_value / 100);
+              } else {
+                currentDiscount = campaign.discount_value;
+              }
+              if (currentDiscount > maxDiscountAmount) {
+                maxDiscountAmount = currentDiscount;
+                bestCampaignCode = campaign.code;
+              }
+            }
+          });
           
           let html = '';
           window.UlluCampaigns.forEach(campaign => {
             let actionHtml = '';
             if (cartTotal >= campaign.min_value) {
-              actionHtml = `<button type="button" class="ullu-apply-btn" style="background: #10b981; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: default;">Eligible</button>`;
+              if (campaign.code === bestCampaignCode && maxDiscountAmount > 0) {
+                actionHtml = `<button type="button" class="ullu-apply-btn" style="background: #0f172a; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: default;">Applied ✨</button>`;
+              } else {
+                actionHtml = `<button type="button" class="ullu-apply-btn" style="background: #10b981; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: default;">Eligible</button>`;
+              }
             } else {
               const diff = (campaign.min_value - cartTotal).toFixed(2);
               actionHtml = `<span class="ullu-lock-msg" style="color: #dc2626; font-size: 13px; font-weight: 600;">🔒 Add ₹${diff} more</span>`;
