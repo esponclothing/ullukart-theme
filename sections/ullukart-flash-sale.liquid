@@ -1,0 +1,446 @@
+{% schema %}
+{
+  "name": "Ullu-Kart Flash Sale",
+  "settings": [
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Content Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "timer_color",
+      "label": "Timer & Badge Color",
+      "default": "#E11D48",
+      "info": "Red creates the highest sense of urgency."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "🔥 FLASH SALE"
+    },
+    {
+      "type": "text",
+      "id": "end_time",
+      "label": "Sale End Time",
+      "default": "12/31/2026 23:59:59",
+      "info": "Format exactly like this: MM/DD/YYYY HH:MM:SS"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "unit": "sec",
+      "label": "Auto-Swipe Speed",
+      "default": 3,
+      "info": "How fast the products scroll automatically."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "sale_item",
+      "name": "Flash Product",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product"
+        },
+        {
+          "type": "text",
+          "id": "custom_stock",
+          "label": "Stock Left Bar (Optional)",
+          "default": "Only 4 left!",
+          "info": "Creates extra urgency"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ullu-Kart Flash Sale",
+      "blocks": [
+        { "type": "sale_item" },
+        { "type": "sale_item" },
+        { "type": "sale_item" },
+        { "type": "sale_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .uk-flash-wrapper {
+    background-color: {{ section.settings.bg_color }};
+    padding: 30px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    border-top: 4px solid #f1f5f9;
+    border-bottom: 4px solid #f1f5f9;
+    overflow: hidden;
+  }
+
+  /* Header Alignment Styles */
+  .uk-flash-header {
+    display: flex;
+    flex-direction: column;
+    padding: 0 15px;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .uk-flash-wrapper.align-left .uk-flash-header {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .uk-flash-wrapper.align-center .uk-flash-header {
+    align-items: center;
+    text-align: center;
+  }
+
+  .uk-flash-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #111;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Timer Styling */
+  .uk-timer-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .uk-timer-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #555;
+    margin-right: 5px;
+  }
+
+  .uk-time-box {
+    background: {{ section.settings.timer_color }};
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 6px 8px;
+    border-radius: 6px;
+    min-width: 32px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(225, 29, 72, 0.3);
+  }
+
+  .uk-time-colon {
+    color: {{ section.settings.timer_color }};
+    font-weight: 900;
+    font-size: 16px;
+  }
+
+  /* Horizontal Scroll Track */
+  .uk-flash-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    padding: 0 15px 15px 15px;
+    gap: 15px;
+  }
+
+  .uk-flash-track::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  /* Product Card */
+  .uk-flash-card {
+    flex: 0 0 160px;
+    scroll-snap-align: start;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    text-decoration: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  }
+
+  .uk-flash-discount-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: {{ section.settings.timer_color }};
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 4px;
+    z-index: 2;
+  }
+
+  .uk-flash-img-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .uk-flash-img-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .uk-flash-prod-title {
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 5px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .uk-flash-price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    margin-top: auto;
+  }
+
+  .uk-flash-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+  }
+
+  .uk-flash-compare {
+    font-size: 12px;
+    color: #94a3b8;
+    text-decoration: line-through;
+  }
+
+  /* Urgency Bar */
+  .uk-stock-bar-wrap {
+    width: 100%;
+    background: #f1f5f9;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+  
+  .uk-stock-bar-fill {
+    background: {{ section.settings.timer_color }};
+    height: 100%;
+    width: 15%; /* Visual trick to make stock look low */
+    border-radius: 3px;
+  }
+
+  .uk-stock-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: {{ section.settings.timer_color }};
+    text-align: left;
+  }
+
+  /* Desktop Adjustments & Alignment Rules */
+  @media (min-width: 769px) {
+    /* Left Aligned Desktop */
+    .uk-flash-wrapper.align-left .uk-flash-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .uk-flash-wrapper.align-left .uk-flash-track {
+      justify-content: flex-start;
+    }
+
+    /* Center Aligned Desktop */
+    .uk-flash-wrapper.align-center .uk-flash-header {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+    }
+    .uk-flash-wrapper.align-center .uk-flash-track {
+      justify-content: center;
+    }
+
+    /* Track Wrapping */
+    .uk-flash-track {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+    
+    .uk-flash-card {
+      flex: 0 0 200px;
+    }
+  }
+</style>
+
+<!-- Added dynamic class based on the schema alignment setting -->
+<div class="uk-flash-wrapper align-{{ section.settings.alignment }}" id="ukFlashWrapper-{{ section.id }}" data-speed="{{ section.settings.autoplay_speed | times: 1000 }}">
+  <div class="uk-flash-header">
+    <h2 class="uk-flash-title">{{ section.settings.heading }}</h2>
+    
+    <div class="uk-timer-container">
+      <span class="uk-timer-text">Ends in:</span>
+      <div class="uk-time-box" id="ukHours-{{ section.id }}">00</div>
+      <span class="uk-time-colon">:</span>
+      <div class="uk-time-box" id="ukMins-{{ section.id }}">00</div>
+      <span class="uk-time-colon">:</span>
+      <div class="uk-time-box" id="ukSecs-{{ section.id }}">00</div>
+    </div>
+  </div>
+
+  <div class="uk-flash-track" id="ukFlashTrack-{{ section.id }}">
+    {% for block in section.blocks %}
+      {% assign product = block.settings.product %}
+      
+      <a href="{{ product.url | default: '#' }}" class="uk-flash-card" {{ block.shopify_attributes }}>
+        
+        {% if product.compare_at_price > product.price %}
+          {% assign saving = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round %}
+          <div class="uk-flash-discount-badge">{{ saving }}% OFF</div>
+        {% elsif product == blank %}
+          <div class="uk-flash-discount-badge">50% OFF</div>
+        {% endif %}
+
+        <div class="uk-flash-img-wrap">
+          {% if product != blank and product.featured_image %}
+            <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title | escape }}" loading="lazy">
+          {% else %}
+            <span style="font-size:10px; color:#999;">Upload Product</span>
+          {% endif %}
+        </div>
+
+        <div class="uk-flash-prod-title">
+          {{ product.title | default: 'Ullu-Kart Fast Charger 65W' }}
+        </div>
+        
+        <div class="uk-flash-price-row">
+          <span class="uk-flash-price">{{ product.price | default: 49900 | money_without_trailing_zeros }}</span>
+          {% if product.compare_at_price > product.price %}
+            <span class="uk-flash-compare">{{ product.compare_at_price | money_without_trailing_zeros }}</span>
+          {% elsif product == blank %}
+             <span class="uk-flash-compare">{{ 99900 | money_without_trailing_zeros }}</span>
+          {% endif %}
+        </div>
+
+        {% if block.settings.custom_stock != blank %}
+          <div class="uk-stock-bar-wrap">
+            <div class="uk-stock-bar-fill"></div>
+          </div>
+          <div class="uk-stock-text">{{ block.settings.custom_stock }}</div>
+        {% endif %}
+
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. COUNTDOWN TIMER LOGIC ---
+    const targetDateString = "{{ section.settings.end_time }}";
+    const countDownDate = new Date(targetDateString).getTime();
+
+    const hoursEl = document.getElementById('ukHours-{{ section.id }}');
+    const minsEl = document.getElementById('ukMins-{{ section.id }}');
+    const secsEl = document.getElementById('ukSecs-{{ section.id }}');
+
+    if (countDownDate && !isNaN(countDownDate)) {
+      const x = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        hoursEl.innerHTML = (hours < 10 ? "0" : "") + hours;
+        minsEl.innerHTML = (minutes < 10 ? "0" : "") + minutes;
+        secsEl.innerHTML = (seconds < 10 ? "0" : "") + seconds;
+
+        if (distance < 0) {
+          clearInterval(x);
+          hoursEl.innerHTML = "00"; minsEl.innerHTML = "00"; secsEl.innerHTML = "00";
+          document.querySelector('#ukHours-{{ section.id }}').parentElement.innerHTML = "<span style='color:red; font-weight:bold;'>SALE ENDED</span>";
+        }
+      }, 1000);
+    }
+
+    // --- 2. AUTO-SWIPE LOGIC ---
+    const track = document.getElementById('ukFlashTrack-{{ section.id }}');
+    const wrapper = document.getElementById('ukFlashWrapper-{{ section.id }}');
+    
+    // Grabs the speed from the Theme Editor setting
+    const speed = parseInt(wrapper.getAttribute('data-speed')) || 3000;
+    let autoPlayInterval;
+
+    function scrollToNextItem() {
+      const card = track.querySelector('.uk-flash-card');
+      if (!card) return;
+      
+      const cardWidth = card.offsetWidth + 15; // Width + gap
+      const maxScroll = track.scrollWidth - track.clientWidth;
+
+      // Reset to beginning if at the end
+      if (track.scrollLeft >= maxScroll - 10) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+      }
+    }
+
+    function startAutoPlay() {
+      autoPlayInterval = setInterval(scrollToNextItem, speed);
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlayInterval);
+    }
+
+    // Pause on Interaction (touching or hovering stops the swipe)
+    wrapper.addEventListener('touchstart', stopAutoPlay, {passive: true});
+    wrapper.addEventListener('touchend', startAutoPlay, {passive: true});
+    wrapper.addEventListener('mouseenter', stopAutoPlay);
+    wrapper.addEventListener('mouseleave', startAutoPlay);
+
+    // Only start auto-play if there's overflowing content
+    if (track.scrollWidth > track.clientWidth) {
+      startAutoPlay();
+    }
+  });
+</script>

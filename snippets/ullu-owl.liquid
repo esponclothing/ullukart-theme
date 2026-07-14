@@ -1,0 +1,330 @@
+{% if settings.ullu_owl_enabled != false %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap');
+
+#ullu-container { position: fixed; z-index: 999999; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; }
+
+#ullu-body {
+  position: absolute; width: {{ settings.ullu_owl_size | default: 90 }}px; height: {{ settings.ullu_owl_size | default: 90 }}px;
+  pointer-events: auto; cursor: pointer; left: -200px; top: -200px; 
+  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4)); transition: transform 0.3s ease; z-index: 999999;
+}
+#ullu-body:hover { transform: scale(1.1) !important; }
+#ullu-body svg { width: 100%; height: 100%; overflow: visible; }
+
+/* ── OWL ANIMATIONS (Makes Ullu Alive & Attractive) ── */
+@keyframes ullu-bob { 0%,100% { transform: translateY(0px) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+.ullu-visible { animation: ullu-bob 2.5s ease-in-out infinite !important; }
+
+@keyframes flapLeft { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } }
+@keyframes flapRight { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
+#ullu-wl { transform-origin: 38px 74px; animation: flapLeft 3s ease-in-out infinite; }
+#ullu-wr { transform-origin: 82px 74px; animation: flapRight 3s ease-in-out infinite; }
+
+@keyframes eyeBlink { 0%, 95%, 100% { transform: scaleY(1); } 97.5% { transform: scaleY(0.1); } }
+.ullu-eye-group { transform-origin: 60px 52px; animation: eyeBlink 4.5s infinite; }
+
+@keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
+.ullu-aura { transform-origin: 60px 68px; animation: auraPulse 3s ease-in-out infinite; }
+
+/* RANDOM PEEKING BUBBLE */
+#ullu-bubble {
+  position: absolute; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+  color: #000000; font-family: 'Outfit', sans-serif !important; font-size: 14px; font-weight: 700;
+  padding: 12px 18px; border-radius: 12px; border: 1.5px solid rgba(245, 200, 66, 0.8);
+  box-shadow: 0 10px 30px rgba(245, 200, 66, 0.3); opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease; transform: translateY(15px) scale(0.8);
+  max-width: 200px; text-align: center; z-index: 999998;
+}
+#ullu-bubble.show-bubble { opacity: 1; transform: translateY(0) scale(1); }
+
+/* ULLU AI CHAT WINDOW */
+#ullu-chat-window {
+  position: fixed; bottom: 120px; right: 30px; width: 360px; height: 540px;
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px; border: 1px solid rgba(245, 200, 66, 0.5); box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+  display: flex; flex-direction: column; overflow: hidden; font-family: 'Outfit', sans-serif;
+  opacity: 0; pointer-events: none; transform: translateY(50px) scale(0.9);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 999998;
+}
+#ullu-chat-window.chat-open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+
+/* TECH DARK HEADER */
+.chat-header { background: #000000; color: #F5C842; padding: 18px 20px; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #F5C842; }
+.chat-close-btn { cursor: pointer; color: #FFFFFF; font-size: 24px; transition: color 0.2s; }
+.chat-close-btn:hover { color: #F5C842; }
+
+.chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: rgba(248, 250, 252, 0.6); }
+.chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.45; font-weight: 500; }
+.msg-ullu { background: #ffffff; border: 1px solid rgba(245, 200, 66, 0.25); color: #000000; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); width: fit-content; max-width: 85%; }
+.msg-user { background: #000000; color: #F5C842; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+/* QUICK CHAT MENU BUTTON GRID (COMPACT) */
+.ullu-quick-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; width: 100%; }
+.quick-btn {
+  background: #ffffff; color: #000000; border: 1.5px solid rgba(245, 200, 66, 0.6);
+  padding: 8px 6px; border-radius: 10px; font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 700; cursor: pointer; text-align: center;
+  transition: all 0.2s ease; box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+}
+.quick-btn:hover { background: #000000; color: #F5C842; border-color: #000000; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(245, 200, 66, 0.2); }
+
+/* PREMIUM ELECTRONICS SWIPEABLE CAROUSEL */
+.ullukart-carousel { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-top: 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; width: 100%; }
+.ullukart-carousel::-webkit-scrollbar { height: 4px; }
+.ullukart-carousel::-webkit-scrollbar-thumb { background: #F5C842; border-radius: 10px; }
+.ullukart-card { min-width: 150px; max-width: 150px; background: #fff; border: 1px solid rgba(245,200,66,0.25); border-radius: 14px; text-decoration: none !important; color: #000 !important; scroll-snap-align: start; flex-shrink: 0; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.2s; }
+.ullukart-card:hover { transform: translateY(-3px); border-color: #000000; box-shadow: 0 8px 16px rgba(0,0,0,0.08); }
+.ullukart-card img { width: 100%; height: 115px; object-fit: cover; background: #f8fafc; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.ullukart-card-info { padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+.ullukart-card-info h4 { font-size: 12px !important; margin: 0 !important; font-weight: 700 !important; line-height: 1.35 !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #000; text-align: left; }
+.ullukart-price { font-size: 14px !important; font-weight: 800 !important; color: #D9A514 !important; margin: 0 !important; text-align: left; }
+
+/* FALLBACK INTERACTIVE BUTTON */
+.ai-search-btn { display: inline-flex; align-items: center; justify-content: center; background: #000000; color: #F5C842 !important; text-decoration: none !important; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; margin-top: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: 0.2s; }
+.ai-search-btn:hover { transform: translateY(-1px); }
+
+/* FIXED TEXTBOX CONTROLS SYSTEM */
+.chat-input-area { padding: 12px 16px; background: #ffffff; border-top: 1px solid rgba(0, 0, 0, 0.06); display: flex; gap: 10px; align-items: center; box-sizing: border-box; width: 100%; }
+.chat-input { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1.5px solid #e2e8f0; font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; background: #f8fafc; color: #000000; transition: all 0.2s ease; box-sizing: border-box; }
+.chat-input:focus { border-color: #F5C842; background: #ffffff; box-shadow: 0 0 0 3px rgba(245, 200, 66, 0.15); }
+.chat-send-btn { background: #000000; color: #F5C842; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; transition: all 0.2s ease; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); box-sizing: border-box; }
+.chat-send-btn:hover { transform: scale(1.05); background: #F5C842; color: #000000; }
+
+@container chat (max-width: 350px) { .chat-msg { max-width: 90%; } }
+
+@media screen and (max-width: 480px) {
+  #ullu-chat-window {
+    width: calc(100vw - 30px) !important; right: 15px !important; bottom: 90px !important;
+    height: 65vh !important; max-height: 500px !important;
+  }
+}
+</style>
+
+<div id="ullu-container">
+  <div id="ullu-body">
+    <svg viewBox="0 0 120 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#3A3224"/><stop offset="100%" stop-color="#0A0906"/>
+        </radialGradient>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFF0A5"/><stop offset="100%" stop-color="#D9A514"/>
+        </linearGradient>
+        <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="50%" stop-color="rgba(245,200,66,0.25)"/><stop offset="100%" stop-color="rgba(245,200,66,0)"/>
+        </radialGradient>
+      </defs>
+      
+      <circle cx="60" cy="68" r="54" fill="url(#glowGrad)" class="ullu-aura"/>
+      
+      <ellipse cx="60" cy="90" rx="36" ry="34" fill="url(#bodyGrad)"/>
+      
+      <path d="M26 76 Q8 92 14 116 Q28 110 34 92 Q38 82 38 74Z" fill="#0A0904" id="ullu-wl"/>
+      <path d="M94 76 Q112 92 106 116 Q92 110 86 92 Q82 82 82 74Z" fill="#0A0904" id="ullu-wr"/>
+      
+      <ellipse cx="60" cy="52" rx="32" ry="30" fill="url(#bodyGrad)"/>
+      
+      <g class="ullu-eye-group">
+        <ellipse cx="60" cy="55" rx="24" ry="22" fill="#000000"/>
+        <circle cx="46" cy="52" r="11" fill="#000000"/>
+        <circle cx="46" cy="52" r="9" fill="url(#goldGrad)"/>
+        <circle cx="46" cy="52" r="4" fill="#000000" id="ullu-pl"/>
+        <circle cx="48" cy="50" r="1.5" fill="white"/>
+        <circle cx="74" cy="52" r="11" fill="#000000"/>
+        <circle cx="74" cy="52" r="9" fill="url(#goldGrad)"/>
+        <circle cx="74" cy="52" r="4" fill="#000000" id="ullu-pr"/>
+        <circle cx="76" cy="50" r="1.5" fill="white"/>
+      </g>
+      
+      <path d="M60 62 L55 72 L65 72Z" fill="#F5C842"/>
+    </svg>
+  </div>
+  <div id="ullu-bubble">🦉 <span id="ullu-msg-text">Ullu's Choice!</span></div>
+</div>
+
+<div id="ullu-chat-window">
+  <div class="chat-header">
+    <span>🦉 Ask Ullu AI</span>
+    <span class="chat-close-btn" id="close-ullu-chat">&times;</span>
+  </div>
+  <div class="chat-body" id="chat-body">
+    
+    <div class="chat-msg msg-ullu">
+      Hoot! 👋 What tech are you hunting for today?
+      <div class="ullu-quick-menu">
+        <button class="quick-btn" onclick="sendQuickQuery('Show me Top 5 Products')">🏆 Top 5</button>
+        <button class="quick-btn" onclick="sendQuickQuery('Show me Mobile Accessories')">🔌 Accessories</button>
+        <button class="quick-btn" onclick="sendQuickQuery('Show me Trending Tech')">🔥 Trending</button>
+        <button class="quick-btn" onclick="sendQuickQuery('Show me Best Deals')">⚡ Deals</button>
+      </div>
+    </div>
+
+  </div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" class="chat-input" placeholder="Ask me about electronics...">
+    <button class="chat-send-btn" id="chat-send-btn">➤</button>
+  </div>
+</div>
+
+<script>
+let sendQuickQuery;
+
+(function(){
+  const owl = document.getElementById('ullu-body');
+  const bubble = document.getElementById('ullu-bubble');
+  const msgText = document.getElementById('ullu-msg-text');
+  const chatWindow = document.getElementById('ullu-chat-window');
+  const chatBody = document.getElementById('chat-body');
+  const chatInput = document.getElementById('chat-input');
+  const chatSendBtn = document.getElementById('chat-send-btn');
+  const closeChatBtn = document.getElementById('close-ullu-chat');
+  const pl = document.getElementById('ullu-pl'), pr = document.getElementById('ullu-pr');
+
+  const SIZE = {{ settings.ullu_owl_size | default: 90 }};
+  let isChatOpen = false;
+  let busy = false;
+
+  function vw(){ return window.innerWidth; }
+  function vh(){ return window.innerHeight; }
+
+  function move(x, y, dur, ease){
+    owl.style.transition = dur ? `left ${dur}s ${ease}, top ${dur}s ${ease}, transform 0.4s ease` : 'none';
+    owl.style.left = x + 'px';
+    owl.style.top = y + 'px';
+  }
+  
+  function showBubble(x, y, text, direction){
+    if(isChatOpen) return;
+    msgText.textContent = text;
+    let bX = x - 50, bY = y - 70;
+    if (direction === 'top') bY = y + SIZE + 15;
+    else if (direction === 'left') { bX = x + SIZE + 10; bY = y - 20; }
+    else if (direction === 'right') { bX = x - 220; bY = y - 20; }
+
+    if (bX < 10) bX = 10; if (bX + 220 > vw()) bX = vw() - 220; 
+    bubble.style.left = bX + 'px';
+    bubble.style.top = bY + 'px';
+    bubble.classList.add('show-bubble');
+  }
+
+  /* ── SHORTER, PUNCHIER MESSAGES ── */
+  const scenes = [
+    { name: 'bottom', msg: () => `Psst! Look here! 👀`, from: () => ({ x: vw()*0.8, y: vh()+50 }), to: () => ({ x: vw()*0.8, y: vh()-SIZE-20 }) },
+    { name: 'right', msg: () => `Hoot! Top pick! 🏆`, from: () => ({ x: vw()+50, y: vh()*0.5 }), to: () => ({ x: vw()-SIZE-10, y: vh()*0.5 }) },
+    { name: 'left', msg: () => `Found a deal! ⚡`, from: () => ({ x: -SIZE-50, y: vh()*0.3 }), to: () => ({ x: 10, y: vh()*0.3 }) }
+  ];
+
+  async function runRandomScene(){
+    if(busy || isChatOpen) return;
+    busy = true;
+
+    const s = scenes[Math.floor(Math.random()*scenes.length)];
+    move(s.from().x, s.from().y, 0, '');
+    await new Promise(r=>setTimeout(r,50));
+    
+    /* FASTER ANIMATION (0.5s instead of 0.8s) */
+    move(s.to().x, s.to().y, 0.5, 'cubic-bezier(0.25, 1, 0.5, 1)');
+    await new Promise(r=>setTimeout(r,500));
+    
+    owl.classList.add('ullu-visible');
+    showBubble(s.to().x, s.to().y, s.msg(), s.name);
+    
+    /* SHORTER HANG TIME (3s instead of 5s) */
+    await new Promise(r=>setTimeout(r,3000));
+    
+    if(!isChatOpen){
+      bubble.classList.remove('show-bubble');
+      owl.classList.remove('ullu-visible');
+      /* FASTER EXIT (0.4s instead of 0.6s) */
+      move(s.from().x, s.from().y, 0.4, 'ease-in');
+      await new Promise(r=>setTimeout(r,500));
+    }
+    busy = false;
+  }
+
+  owl.addEventListener('click', () => {
+    isChatOpen = !isChatOpen;
+    bubble.classList.remove('show-bubble');
+    chatWindow.classList.toggle('chat-open', isChatOpen);
+    if(isChatOpen) {
+        move(vw() - SIZE - 30, vh() - SIZE - 20, 0.4, 'ease-out');
+        owl.classList.add('ullu-visible');
+    }
+  });
+
+  closeChatBtn.addEventListener('click', () => {
+    isChatOpen = false;
+    chatWindow.classList.remove('chat-open');
+    busy = false;
+  });
+
+  async function execQuery(textValue) {
+    const text = textValue.trim();
+    if(!text) return;
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg msg-user';
+    userMsg.textContent = text;
+    chatBody.appendChild(userMsg);
+    chatInput.value = '';
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    const typingMsg = document.createElement('div');
+    typingMsg.className = 'chat-msg msg-ullu';
+    typingMsg.textContent = 'Ullu is scanning items...';
+    chatBody.appendChild(typingMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    try {
+      const baseUrl = 'https://n8n.srv1468559.hstgr.cloud/webhook/35b2c2c1-fa06-4493-b861-8f8cdd4002f4';
+      const finalUrl = `${baseUrl}?chatInput=${encodeURIComponent(text)}&sessionId=ullukart-pure-v1`;
+
+      const response = await fetch(finalUrl, { method: 'GET' });
+      const aiResponseText = await response.text(); 
+      if(typingMsg.parentNode) chatBody.removeChild(typingMsg);
+
+      const ulluResponse = document.createElement('div');
+      ulluResponse.className = 'chat-msg msg-ullu';
+      
+      let finalMessage = "";
+      try {
+        const parsed = JSON.parse(aiResponseText);
+        if (Array.isArray(parsed)) {
+          finalMessage = parsed[0].output || parsed[0].reply || aiResponseText;
+        } else if (typeof parsed === 'object') {
+          finalMessage = parsed.output || parsed.reply || aiResponseText;
+        }
+      } catch(e) { finalMessage = aiResponseText; }
+      
+      ulluResponse.innerHTML = finalMessage; 
+      chatBody.appendChild(ulluResponse);
+      chatBody.scrollTop = chatBody.scrollHeight;
+
+    } catch (error) {
+      if(typingMsg.parentNode) chatBody.removeChild(typingMsg);
+      const errorMsg = document.createElement('div');
+      errorMsg.className = 'chat-msg msg-ullu';
+      errorMsg.textContent = "Hoot! Radar jammed. Let me check my maps again! 🦉";
+      chatBody.appendChild(errorMsg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+  }
+
+  sendQuickQuery = function(text) { execQuery(text); };
+  chatSendBtn.addEventListener('click', () => execQuery(chatInput.value));
+  chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') execQuery(chatInput.value); });
+
+  document.addEventListener('mousemove',e=>{
+    const r = owl.getBoundingClientRect();
+    const cx = r.left + SIZE/2, cy = r.top + SIZE/2;
+    const a = Math.atan2(e.clientY-cy, e.clientX-cx);
+    pl.setAttribute('cx', 46+Math.cos(a)*4); pl.setAttribute('cy', 52+Math.sin(a)*4);
+    pr.setAttribute('cx', 74+Math.cos(a)*4); pr.setAttribute('cy', 52+Math.sin(a)*4);
+  });
+
+  /* ── MORE FREQUENT POP-UPS (4.5s instead of 8s) ── */
+  setInterval(runRandomScene, 1000);
+})();
+</script>
+{% endif %}

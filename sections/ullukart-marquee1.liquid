@@ -1,0 +1,254 @@
+{%- assign marquee_font = section.settings.marquee_font -%}
+
+{% schema %}
+{
+  "name": "Ullu-Kart Marquee",
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Colors & Typography"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FF7A00"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text & Icon Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "font_picker",
+      "id": "marquee_font",
+      "label": "Marquee Font",
+      "default": "work_sans_n7"
+    },
+    {
+      "type": "range",
+      "id": "font_size_desktop",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop Font Size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Font Size",
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "text_bold",
+      "label": "Make Text Bold",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "text_uppercase",
+      "label": "Uppercase Text",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "⚙️ Animation Settings"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "unit": "sec",
+      "label": "Scrolling Speed",
+      "info": "Lower is faster. 15-25 is usually best.",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Scrolling Direction",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Right to Left ⬅️"
+        },
+        {
+          "value": "reverse",
+          "label": "Left to Right ➡️"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "range",
+      "id": "padding_y",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Top & Bottom Padding",
+      "default": 10
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "FLAT 50% OFF ON FAST CHARGERS!"
+        },
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "FontAwesome Icon (Optional)",
+          "info": "Example: fa-solid fa-bolt",
+          "default": "fa-solid fa-bolt"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ullu-Kart Marquee",
+      "blocks": [
+        { "type": "announcement", "settings": { "text": "FLAT 50% OFF ON FAST CHARGERS!", "icon": "fa-solid fa-bolt" } },
+        { "type": "announcement", "settings": { "text": "FREE SHIPPING ON ORDERS OVER ₹999", "icon": "fa-solid fa-truck-fast" } },
+        { "type": "announcement", "settings": { "text": "CASH ON DELIVERY AVAILABLE", "icon": "fa-solid fa-wallet" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  /* Load the chosen Shopify font */
+  {{ marquee_font | font_face: font_display: 'swap' }}
+
+  .uk-marquee-container-{{ section.id }} {
+    /* Dynamic Theme Editor Variables */
+    --bg-color: {{ section.settings.bg_color }};
+    --text-color: {{ section.settings.text_color }};
+    --speed: {{ section.settings.speed }}s;
+    --direction: {{ section.settings.direction }};
+    --padding-y: {{ section.settings.padding_y }}px;
+    --font-size-desktop: {{ section.settings.font_size_desktop }}px;
+    --font-size-mobile: {{ section.settings.font_size_mobile }}px;
+    
+    /* Typography variables */
+    --marquee-font-family: {{ marquee_font.family }}, {{ marquee_font.fallback_families }};
+    --font-weight: {% if section.settings.text_bold %}800{% else %}400{% endif %};
+    --text-transform: {% if section.settings.text_uppercase %}uppercase{% else %}none{% endif %};
+    
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: var(--padding-y) 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    z-index: 1;
+    font-family: var(--marquee-font-family);
+  }
+
+  .uk-marquee-track {
+    display: flex;
+    white-space: nowrap;
+    /* The CSS Animation driving the endless scroll */
+    animation: uk-marquee-scroll var(--speed) linear infinite var(--direction);
+  }
+
+  /* Pauses the scrolling if a user hovers over it with a mouse */
+  .uk-marquee-container-{{ section.id }}:hover .uk-marquee-track {
+    animation-play-state: paused;
+  }
+
+  .uk-marquee-content {
+    display: flex;
+    align-items: center;
+    padding-right: 50px; /* Space between the repeating loops */
+  }
+
+  .uk-marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 40px; /* Space between individual text blocks */
+    font-size: var(--font-size-desktop);
+    font-weight: var(--font-weight);
+    text-transform: var(--text-transform);
+    letter-spacing: 0.5px;
+  }
+
+  .uk-marquee-item i {
+    font-size: calc(var(--font-size-desktop) + 2px);
+  }
+
+  @keyframes uk-marquee-scroll {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      /* Moves exactly 1 full block length so it loops flawlessly */
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Mobile Adjustments */
+  @media screen and (max-width: 768px) {
+    .uk-marquee-item {
+      font-size: var(--font-size-mobile);
+      margin-right: 25px;
+    }
+    .uk-marquee-item i {
+      font-size: calc(var(--font-size-mobile) + 2px);
+    }
+    .uk-marquee-content {
+      padding-right: 25px;
+    }
+  }
+</style>
+
+<div class="uk-marquee-container-{{ section.id }}">
+  
+  {% for track_loop in (1..4) %}
+    <div class="uk-marquee-track" {% if track_loop > 1 %}aria-hidden="true"{% endif %}>
+      <div class="uk-marquee-content">
+        
+        {% if section.blocks.size > 0 %}
+          {% for block in section.blocks %}
+            <div class="uk-marquee-item" {{ block.shopify_attributes }}>
+              {% if block.settings.icon != blank %}
+                <i class="{{ block.settings.icon }}"></i>
+              {% endif %}
+              <span>{{ block.settings.text }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="uk-marquee-item">
+            <i class="fa-solid fa-bolt"></i>
+            <span>ADD TEXT BLOCKS IN THEME EDITOR</span>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endfor %}
+
+</div>

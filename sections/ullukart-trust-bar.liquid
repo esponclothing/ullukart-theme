@@ -1,0 +1,285 @@
+{% schema %}
+{
+  "name": "Ullu-Kart 3D Trust Bar",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background",
+      "default": "#F8F9FA"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "icon_bg",
+      "label": "Icon Highlight Color",
+      "default": "#FF7A00",
+      "info": "Background circle for the emoji/icon."
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "unit": "sec",
+      "label": "Auto-Swipe Speed",
+      "default": 3,
+      "info": "Controls how fast the trust badges auto-scroll on mobile."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust Badge",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Emoji Icon",
+          "default": "🚚",
+          "info": "Use emojis like 🚚, 🛡️, 💳, ↩️"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Main Title",
+          "default": "Free Delivery"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "On all orders"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ullu-Kart 3D Trust Bar",
+      "blocks": [
+        { "type": "trust_badge", "settings": { "icon": "🚚", "title": "Free Delivery", "subtitle": "On orders over ₹499" } },
+        { "type": "trust_badge", "settings": { "icon": "💳", "title": "Cash on Delivery", "subtitle": "Available Pan-India" } },
+        { "type": "trust_badge", "settings": { "icon": "↩️", "title": "7-Day Returns", "subtitle": "No questions asked" } },
+        { "type": "trust_badge", "settings": { "icon": "🛡️", "title": "100% Secure", "subtitle": "Encrypted Checkout" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .uk-trust-wrapper {
+    background-color: {{ section.settings.bg_color }};
+    padding: 25px 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    perspective: 1200px;
+    overflow: hidden;
+  }
+
+  .uk-trust-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    gap: 15px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+  }
+
+  .uk-trust-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .uk-trust-card {
+    flex: 0 0 80%;
+    max-width: 280px;
+    scroll-snap-align: center;
+    background: {{ section.settings.card_bg }};
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    transform-style: preserve-3d;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 -4px 6px rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.8);
+    animation: floatTrust 4s ease-in-out infinite;
+    overflow: hidden;
+  }
+
+  .uk-trust-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: trustShimmer 5s infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @keyframes floatTrust {
+    0%, 100% { transform: translateY(0) rotateX(2deg); box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 -4px 6px rgba(0,0,0,0.03); }
+    50% { transform: translateY(-6px) rotateX(6deg); box-shadow: 0 15px 25px rgba(0,0,0,0.12), inset 0 -4px 6px rgba(0,0,0,0.03); }
+  }
+
+  @keyframes trustShimmer {
+    0% { left: -150%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+  }
+
+  .uk-trust-card:nth-child(2) { animation-delay: 0.5s; }
+  .uk-trust-card:nth-child(2)::before { animation-delay: 1.5s; }
+  .uk-trust-card:nth-child(3) { animation-delay: 1s; }
+  .uk-trust-card:nth-child(3)::before { animation-delay: 3s; }
+  .uk-trust-card:nth-child(4) { animation-delay: 1.5s; }
+  .uk-trust-card:nth-child(4)::before { animation-delay: 4.5s; }
+
+  .uk-trust-icon-wrap {
+    width: 44px;
+    height: 44px;
+    background: {{ section.settings.icon_bg }};
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px {{ section.settings.icon_bg | color_modify: 'alpha', 0.4 }}, inset 0 2px 4px rgba(255,255,255,0.5);
+    z-index: 2;
+    animation: bounceIcon 3s ease-in-out infinite;
+  }
+
+  @keyframes bounceIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .uk-trust-text-wrap {
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  .uk-trust-title {
+    color: {{ section.settings.text_color }};
+    font-size: 14px;
+    font-weight: 800;
+    margin: 0 0 2px 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .uk-trust-subtitle {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 769px) {
+    .uk-trust-track {
+      justify-content: center;
+      flex-wrap: wrap;
+      overflow-x: visible;
+    }
+    .uk-trust-card {
+      flex: 1 1 22%;
+      max-width: 300px;
+    }
+  }
+</style>
+
+<div class="uk-trust-wrapper" id="ukTrustWrapper-{{ section.id }}" data-speed="{{ section.settings.autoplay_speed | times: 1000 }}">
+  <div class="uk-trust-track" id="ukTrustTrack-{{ section.id }}">
+    
+    {% for block in section.blocks %}
+      <div class="uk-trust-card" {{ block.shopify_attributes }}>
+        <div class="uk-trust-icon-wrap">
+          {{ block.settings.icon }}
+        </div>
+        <div class="uk-trust-text-wrap">
+          <h4 class="uk-trust-title">{{ block.settings.title }}</h4>
+          <p class="uk-trust-subtitle">{{ block.settings.subtitle }}</p>
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('ukTrustTrack-{{ section.id }}');
+    const wrapper = document.getElementById('ukTrustWrapper-{{ section.id }}');
+    
+    if (!track || !wrapper) return;
+
+    // Only run auto-swipe on mobile where it overflows
+    if (window.innerWidth > 768) return; 
+
+    // Grab speed from theme editor
+    const speed = parseInt(wrapper.getAttribute('data-speed')) || 3000;
+    let autoPlayInterval;
+    let direction = 1; // 1 for forward, -1 for backward
+
+    function scrollToNextTrustItem() {
+      const card = track.querySelector('.uk-trust-card');
+      if (!card) return;
+      
+      const cardWidth = card.offsetWidth + 15; // Width + gap
+      const maxScroll = track.scrollWidth - track.clientWidth;
+
+      if (maxScroll <= 0) return; // Doesn't need scrolling
+
+      // Ping-pong reverse logic
+      if (track.scrollLeft >= maxScroll - 10 && direction === 1) {
+        direction = -1;
+      } else if (track.scrollLeft <= 10 && direction === -1) {
+        direction = 1;
+      }
+
+      track.scrollBy({ left: cardWidth * direction, behavior: 'smooth' });
+    }
+
+    function startAutoPlay() {
+      autoPlayInterval = setInterval(scrollToNextTrustItem, speed);
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlayInterval);
+    }
+
+    // Pause Auto-swipe on Manual Interaction
+    wrapper.addEventListener('touchstart', stopAutoPlay, {passive: true});
+    wrapper.addEventListener('touchend', startAutoPlay, {passive: true});
+    wrapper.addEventListener('mouseenter', stopAutoPlay);
+    wrapper.addEventListener('mouseleave', startAutoPlay);
+
+    // Initial check to see if content overflows before starting auto-play
+    if (track.scrollWidth > track.clientWidth) {
+      startAutoPlay();
+    }
+  });
+</script>

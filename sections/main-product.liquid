@@ -1,0 +1,775 @@
+{% comment %}
+  ============================================================
+  ULLUKART — main-product.liquid
+  Drop this file into: sections/main-product.liquid
+  Then add {% section 'main-product' %} to your product.liquid
+  template (or use the theme editor to assign it).
+  ============================================================
+{% endcomment %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<style>
+  .ullu-page *,.ullu-page{box-sizing:border-box;font-family:'Outfit',system-ui,sans-serif}
+  .ullu-page{max-width:1200px;margin:0 auto;padding-top:20px;padding-bottom:130px;color:#0f172a;overflow-x:hidden;}
+
+  /* ── GRID ── */
+  .ullu-grid{display:grid;grid-template-columns:480px 1fr;gap:28px;align-items:start}
+
+  /* ── GALLERY ── */
+  .ullu-gallery-wrap{position:sticky;top:20px;width:480px}
+  .ullu-gallery-box{width:100%;aspect-ratio:4/5;background:#ffffff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;position:relative}
+  .ullu-slides{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}
+  .ullu-slides::-webkit-scrollbar{display:none}
+  .ullu-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;padding:24px}
+  .ullu-slide img{width:100%;height:100%;object-fit:contain}
+  .ullu-dots{position:absolute;bottom:14px;left:0;width:100%;display:flex;justify-content:center;gap:6px;pointer-events:none;z-index:2}
+  .ullu-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;transition:all .3s ease;pointer-events:auto;cursor:pointer}
+  .ullu-dot.on{width:22px;border-radius:4px;background:#0f172a}
+  .ullu-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+  .ullu-thumbs::-webkit-scrollbar{display:none}
+  .ullu-thumb{width:64px;height:80px;flex-shrink:0;border-radius:8px;border:2px solid #e2e8f0;overflow:hidden;cursor:pointer;transition:border-color .2s;background:#fff}
+  .ullu-thumb.on{border-color:#2563eb}
+  .ullu-thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
+
+  /* ── DETAILS PANEL ── */
+  .ullu-info{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .ullu-brand{font-size:13px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+  .ullu-title{font-size:22px;font-weight:500;line-height:1.35;color:#0f172a}
+  .ullu-rating-row{display:flex;align-items:center;gap:10px}
+  .ullu-badge-rating{display:inline-flex;align-items:center;gap:4px;background:#388e3c;color:#fff;font-size:13px;font-weight:600;padding:3px 9px;border-radius:5px}
+  .ullu-rev-count{font-size:13px;color:#64748b}
+
+  /* ── PRICE ── */
+  .ullu-price-block{background:#f8fafc;border-radius:10px;padding:14px 16px;border:1px solid #e2e8f0}
+  .ullu-price-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .ullu-price-main{font-size:30px;font-weight:600;color:#0f172a}
+  .ullu-price-old{font-size:15px;color:#94a3b8;text-decoration:line-through}
+  .ullu-price-off{font-size:15px;font-weight:600;color:#388e3c}
+  .ullu-price-note{font-size:12px;color:#64748b;margin-top:5px}
+
+  /* ── OFFERS ── */
+  .ullu-offers-head{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:500;color:#0f172a;margin-bottom:10px}
+  .ullu-offers-head i{color:#22c55e;font-size:18px}
+  .ullu-offers-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .ullu-offers-scroll::-webkit-scrollbar{display:none}
+  .ullu-offer-card{min-width:230px;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .ullu-offer-icon{width:36px;height:36px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+  .ullu-offer-text{flex:1;overflow:hidden}
+  .ullu-offer-text h4{font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 0 3px}
+  .ullu-offer-text p{font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+  .ullu-copy-btn{font-size:11px;font-weight:700;background:#f8fafc;border:1.5px dashed #94a3b8;color:#0f172a;padding:5px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;transition:all .2s;white-space:nowrap;letter-spacing:.03em}
+  .ullu-copy-btn.copied{background:#22c55e;border-color:#22c55e;color:#fff}
+
+  /* ── VARIANT SELECTORS (PILLS) ── */
+  .ullu-variant-selectors { display: flex; flex-direction: column; gap: 18px; margin-bottom: 20px; width: 100%; }
+  .ullu-option-fieldset { border: none; padding: 0; margin: 0; }
+  .ullu-option-name { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .ullu-variant-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ullu-variant-radio { display: none; }
+  .ullu-variant-pill { 
+    display: inline-flex; align-items: center; justify-content: center; 
+    padding: 10px 18px; border: 1.5px solid #e2e8f0; border-radius: 8px; 
+    font-size: 14px; color: #475569; cursor: pointer; transition: all 0.2s; 
+    background: #fff; user-select: none;
+  }
+  .ullu-variant-pill:hover { border-color: #94a3b8; }
+  .ullu-variant-radio:checked + .ullu-variant-pill { 
+    border-color: #0f172a; background: #0f172a; color: #fff; font-weight: 500; 
+  }
+  /* Optional: Strike-through if you want to visually show out-of-stock items via JS later */
+  .ullu-variant-radio.is-disabled + .ullu-variant-pill { 
+    opacity: 0.5; text-decoration: line-through; cursor: not-allowed; 
+  }
+  /* ── COLOR SWATCH DOT ── */
+  .ullu-color-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid #cbd5e1;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    background-color: #fff; /* fallback */
+  }
+  .ullu-variant-radio:checked + .ullu-variant-pill .ullu-color-swatch {
+    border-color: #fff;
+  }
+
+  /* ── ACCORDIONS ── */
+  .ullu-accord-group{border-top:1px solid #e2e8f0}
+  .ullu-accord{border-bottom:1px solid #e2e8f0}
+  .ullu-accord summary{display:flex;justify-content:space-between;align-items:center;padding:16px 0;cursor:pointer;list-style:none;font-size:16px;font-weight:500;color:#0f172a;user-select:none}
+  .ullu-accord summary::-webkit-details-marker{display:none}
+  .ullu-accord summary i{font-size:20px;color:#94a3b8;transition:transform .3s ease}
+  .ullu-accord[open] summary i{transform:rotate(45deg);color:#0f172a}
+  .ullu-acc-body{padding-bottom:18px;font-size:14px;color:#475569;line-height:1.75}
+  .ullu-acc-body p,.ullu-acc-body ul,.ullu-acc-body ol,.ullu-acc-body table{font-size:14px}
+  .ullu-spec-table{width:100%;border-collapse:collapse}
+  .ullu-spec-table tr{border-bottom:1px solid #f1f5f9}
+  .ullu-spec-table tr:last-child{border:none}
+  .ullu-spec-table td{padding:9px 0;font-size:14px;vertical-align:top}
+  .ullu-spec-table td:first-child{color:#64748b;width:38%;padding-right:12px;font-weight:400}
+  .ullu-spec-table td:last-child{color:#0f172a;font-weight:500}
+  .ullu-in-stock{color:#388e3c;font-weight:600}
+  .ullu-out-stock{color:#dc2626;font-weight:600}
+
+  /* ── STICKY BAR ── */
+  .ullu-sticky {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(226, 232, 240, 0.6);
+    z-index: 99999;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.03);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ullu-sticky-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px !important;
+    min-height: unset !important;
+  }
+  .ullu-sticky-meta { display: flex; align-items: center; gap: 14px; }
+  .ullu-sticky-img { width: 46px; height: 46px; object-fit: contain; border-radius: 8px; border: 1px solid #f1f5f9; padding: 2px; background: #fff; }
+  .ullu-sticky-text h3 { font-size: 14px; font-weight: 500; color: #0f172a; margin: 0 0 2px; }
+  .ullu-sticky-text p { font-size: 14px; font-weight: 600; color: #64748b; margin: 0; }
+
+  /* ── ACTION BUTTONS CONTAINER ── */
+  .ullu-sticky-btns {
+    width: 320px;
+    flex-shrink: 0;
+  }
+  .ullu-form-inline { margin: 0; padding: 0; display: flex; flex: 1; width: 100%; }
+
+  /* ── SINGLE PREMIUM ADD TO CART BUTTON (Animated) ── */
+  .ullu-btn-cart {
+    width: 100% !important;
+    height: 56px !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 100px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+  }
+  
+  /* Premium Shimmer/Shine Animation */
+  .ullu-btn-cart::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-20deg);
+    animation: ulluShine 3s infinite;
+  }
+  @keyframes ulluShine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+  }
+  
+  /* Hover Effects */
+  .ullu-btn-cart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.35);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+  .ullu-btn-cart i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+  .ullu-btn-cart:hover i {
+    transform: translateX(4px) scale(1.1);
+  }
+
+  .ullu-main-action-btns {
+    display: flex;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: -6px; 
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:1100px){
+    .ullu-grid{grid-template-columns:420px 1fr}
+    .ullu-gallery-wrap{width:420px}
+  }
+  @media(max-width:900px){
+    .ullu-grid{grid-template-columns:1fr;gap:0;max-width:100vw;}
+    .ullu-gallery-wrap{position:relative;top:0;width:100%;max-width:100%;margin:0 auto;overflow:hidden;}
+    .ullu-gallery-box{border-radius:0;border-left:none;border-right:none}
+    .ullu-info{padding:16px}
+  }
+  @media(max-width:767px){
+    .ullu-page{padding:0 0 80px}
+    .ullu-title{font-size:18px}
+    .ullu-price-main{font-size:24px}
+
+    /* HIDE main button on mobile to prevent double buttons, but keep the combo app visible */
+    .ullu-main-action-btns .ullu-btn-cart { display: none !important; }
+
+    /* Sticky Bar overrides for Mobile */
+    .ullu-sticky-inner { 
+      display: block !important;
+      padding: 12px 16px !important; 
+    }
+    .ullu-sticky-meta { display: none !important; } 
+    .ullu-sticky-btns { 
+      width: 100% !important; 
+      max-width: 340px !important; 
+      margin: 0 auto !important; 
+      display: block; 
+    }
+    .ullu-btn-cart { 
+      height: 54px !important; 
+      font-size: 15px !important; 
+      padding: 0 10px !important; 
+    }
+  }
+</style>
+
+{% comment %} ── PRODUCT PAGE ── {% endcomment %}
+<div class="ullu-page">
+  <div class="ullu-grid">
+
+    {% comment %} ═══════════════════════════════════════
+        LEFT — IMAGE GALLERY
+    ═══════════════════════════════════════ {% endcomment %}
+    <div class="ullu-gallery-wrap">
+
+      <div class="ullu-gallery-box">
+        <div class="ullu-slides" id="ulluSlides">
+          {% for image in product.images %}
+            <div class="ullu-slide">
+              <img
+                src="{{ image | img_url: '800x1000' }}"
+                alt="{{ image.alt | default: product.title | escape }}"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              >
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="ullu-dots" id="ulluDots">
+          {% for image in product.images %}
+            <div class="ullu-dot{% if forloop.first %} on{% endif %}"></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% comment %} Thumbnail strip — hidden when only 1 image {% endcomment %}
+      {% if product.images.size > 1 %}
+        <div class="ullu-thumbs" id="ulluThumbs">
+          {% for image in product.images %}
+            <div class="ullu-thumb{% if forloop.first %} on{% endif %}" data-index="{{ forloop.index0 }}">
+              <img
+                src="{{ image | img_url: '120x150' }}"
+                alt="{{ image.alt | default: product.title | escape }}"
+                loading="lazy"
+              >
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+
+    {% comment %} ═══════════════════════════════════════
+        RIGHT — PRODUCT DETAILS
+    ═══════════════════════════════════════ {% endcomment %}
+    <div class="ullu-info">
+
+      {% comment %} Brand & title {% endcomment %}
+      <div>
+        <div class="ullu-brand">{{ product.vendor }}</div>
+        <h1 class="ullu-title">{{ product.title }}</h1>
+      </div>
+      <div class="AirReviews-Widget AirReviews-Widget--Stars"></div>
+      {% comment %} Price block {% endcomment %}
+      <div class="ullu-price-block">
+        <div class="ullu-price-row">
+          <span class="ullu-price-main">{{ product.price | money }}</span>
+          {% if product.compare_at_price > product.price %}
+            <span class="ullu-price-old">{{ product.compare_at_price | money }}</span>
+            <span class="ullu-price-off">
+              {{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}% off
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      
+      {% comment %} ── MAIN DESKTOP BUTTON & APP BLOCKS ── {% endcomment %}
+      <div class="ullu-main-action-btns">
+        {% form 'product', product, id: 'ullu-form-cart-main', class: 'ullu-form-inline product-form', style: 'width: 100%; flex-direction: column;' %}
+          
+          {% comment %} ── APP BLOCKS (Moved inside the form for Combo Apps) ── {% endcomment %}
+          {%- for block in section.blocks -%}
+            {%- if block.type == '@app' -%}
+              <div style="margin-bottom: 16px; width: 100%;">
+                {% render block %}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {% comment %} ── VARIANT SELECTOR (MODERN PILLS WITH COLORS) ── {% endcomment %}
+          {% unless product.has_only_default_variant %}
+            <div class="ullu-variant-selectors">
+              {% for option in product.options_with_values %}
+                
+                {% comment %} Check if this option is a Color option {% endcomment %}
+                {% assign option_name_lower = option.name | downcase %}
+                {% assign is_color_option = false %}
+                {% if option_name_lower contains 'color' or option_name_lower contains 'colour' %}
+                  {% assign is_color_option = true %}
+                {% endif %}
+
+                <fieldset class="ullu-option-fieldset">
+                  <legend class="ullu-option-name">{{ option.name }}</legend>
+                  <div class="ullu-variant-pills">
+                    {% for value in option.values %}
+                      <input type="radio" 
+                             id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                             name="{{ option.name }}" 
+                             value="{{ value | escape }}"
+                             {% if option.selected_value == value %}checked{% endif %}
+                             class="ullu-variant-radio">
+                      
+                      <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="ullu-variant-pill">
+                        {% if is_color_option %}
+                          {% comment %} Converts "Navy Blue" to "navyblue" so web browsers recognize it {% endcomment %}
+                          {% assign css_color = value | downcase | remove: ' ' %}
+                          <span class="ullu-color-swatch" style="background-color: {{ css_color }};"></span>
+                        {% endif %}
+                        {{ value }}
+                      </label>
+
+                    {% endfor %}
+                  </div>
+                </fieldset>
+              {% endfor %}
+              
+              {% comment %} Store variant data for JS to read {% endcomment %}
+              <script type="application/json" id="ProductVariantsData">
+                {{ product.variants | json }}
+              </script>
+            </div>
+          {% endunless %}
+
+          {% comment %} The Master ID Input (Updated by JS) {% endcomment %}
+          <input type="hidden" name="id" id="ullu-variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="quantity" value="1" class="qty-input">
+          <button type="submit" name="add" class="ullu-btn-cart product-form__submit">
+            <i class="ti ti-shopping-cart" aria-hidden="true"></i> <span>Add to Cart</span>
+          </button>
+        {% endform %}
+      </div>
+
+      {% comment %} ── OFFERS CAROUSEL ── {% endcomment %}
+      {% assign has_offers = false %}
+      {% for block in section.blocks %}
+        {% if block.type == 'offer' %}{% assign has_offers = true %}{% endif %}
+      {% endfor %}
+
+      {% if has_offers %}
+        <div>
+          <div class="ullu-offers-head">
+            <i class="ti ti-tag-filled" aria-hidden="true"></i>
+            Available offers
+          </div>
+          <div class="ullu-offers-scroll" id="ulluOffersScroll">
+            {% for block in section.blocks %}
+              {% if block.type == 'offer' %}
+                <div class="ullu-offer-card" {{ block.shopify_attributes }}>
+                  <div class="ullu-offer-icon">{{ block.settings.offer_icon }}</div>
+                  <div class="ullu-offer-text">
+                    <h4>{{ block.settings.offer_title }}</h4>
+                    <p>{{ block.settings.offer_subtitle }}</p>
+                  </div>
+                  {% if block.settings.offer_code != blank %}
+                    <button
+                      type="button"
+                      class="ullu-copy-btn"
+                      style="white-space: normal; line-height: 1.2;"
+                      data-code="{{ block.settings.offer_code }}"
+                      onclick="ulluCopyCode(this)"
+                    >
+                      <span>{{ block.settings.offer_code }}</span><br>
+                      <span style="font-size: 8px; color: #64748b; font-weight: 500; text-transform: uppercase;">Click to copy</span>
+                    </button>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% comment %} ── ACCORDIONS ── {% endcomment %}
+      <div class="ullu-accord-group">
+
+        {% comment %} Description {% endcomment %}
+        {% if product.description != blank %}
+          <details class="ullu-accord">
+            <summary>Product description <i class="ti ti-plus" aria-hidden="true"></i></summary>
+            <div class="ullu-acc-body">{{ product.description }}</div>
+          </details>
+        {% endif %}
+
+        {% comment %} Specifications built from product.tags (format: "Label:Value") {% endcomment %}
+        <details class="ullu-accord">
+          <summary>Specifications <i class="ti ti-plus" aria-hidden="true"></i></summary>
+          <div class="ullu-acc-body">
+            <table class="ullu-spec-table">
+              <tr>
+                <td>Brand</td>
+                <td>{{ product.vendor }}</td>
+              </tr>
+              {% if product.type != blank %}
+                <tr>
+                  <td>Category</td>
+                  <td>{{ product.type }}</td>
+                </tr>
+              {% endif %}
+              <tr>
+                <td>Availability</td>
+                <td>
+                  {% if product.available %}
+                    <span class="ullu-in-stock">In stock</span>
+                  {% else %}
+                    <span class="ullu-out-stock">Out of stock</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% for tag in product.tags %}
+                {% if tag contains ':' %}
+                  {% assign parts = tag | split: ':' %}
+                  <tr>
+                    <td>{{ parts[0] | replace: '_', ' ' | capitalize }}</td>
+                    <td>{{ parts[1] | strip }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </table>
+          </div>
+        </details>
+
+        {% comment %} Delivery & returns — customise text in schema settings {% endcomment %}
+        {% if section.settings.delivery_text != blank %}
+          <details class="ullu-accord">
+            <summary>Delivery &amp; returns <i class="ti ti-plus" aria-hidden="true"></i></summary>
+            <div class="ullu-acc-body">{{ section.settings.delivery_text }}</div>
+          </details>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %} ═══════════════════════════════════════
+    STICKY BOTTOM ACTION BAR (Premium)
+═══════════════════════════════════════ {% endcomment %}
+<div class="ullu-sticky" id="ulluStickyBar">
+  <div class="ullu-sticky-inner">
+
+    <div class="ullu-sticky-meta">
+      <img
+        class="ullu-sticky-img"
+        src="{{ product.featured_image | img_url: '100x125' }}"
+        alt="{{ product.title | escape }}"
+        loading="lazy"
+      >
+      <div class="ullu-sticky-text">
+        <h3>{{ product.title }}</h3>
+        <p>{{ product.price | money }}</p>
+      </div>
+    </div>
+
+    <div class="ullu-sticky-btns">
+      <div class="ullu-form-inline">
+        {% comment %} Changed to type="button" and added an onclick event to trigger the main form button {% endcomment %}
+        <button type="button" class="ullu-btn-cart product-form__submit" onclick="document.querySelector('#ullu-form-cart-main .ullu-btn-cart').click();">
+          <i class="ti ti-shopping-cart" aria-hidden="true"></i> <span>Add to Cart</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+
+  /* ── GALLERY ── */
+  var slides   = document.getElementById('ulluSlides');
+  var dotsWrap = document.getElementById('ulluDots');
+  var thumbsWrap = document.getElementById('ulluThumbs');
+
+  if (!slides) return;
+
+  var dots   = dotsWrap   ? dotsWrap.querySelectorAll('.ullu-dot')   : [];
+  var thumbs = thumbsWrap ? thumbsWrap.querySelectorAll('.ullu-thumb') : [];
+  var total  = dots.length;
+  var cur    = 0;
+  var autoTimer;
+
+  function goTo(n) {
+    if (n < 0) n = total - 1;
+    if (n >= total) n = 0;
+    if (dots[cur])   dots[cur].classList.remove('on');
+    if (thumbs[cur]) thumbs[cur].classList.remove('on');
+    cur = n;
+    slides.scrollTo({ left: cur * slides.clientWidth, behavior: 'smooth' });
+    if (dots[cur])   dots[cur].classList.add('on');
+    if (thumbs[cur]) thumbs[cur].classList.add('on');
+  }
+
+  function startAuto() {
+    clearInterval(autoTimer);
+    if (total > 1 && {{ section.settings.gallery_auto }}) {
+      autoTimer = setInterval(function() { goTo(cur + 1); }, {{ section.settings.gallery_speed | times: 1000 }});
+    }
+  }
+
+  /* Sync dots on manual swipe */
+  slides.addEventListener('scroll', function() {
+    var idx = Math.round(slides.scrollLeft / slides.clientWidth);
+    if (idx !== cur && idx >= 0 && idx < total) {
+      if (dots[cur])   dots[cur].classList.remove('on');
+      if (thumbs[cur]) thumbs[cur].classList.remove('on');
+      cur = idx;
+      if (dots[cur])   dots[cur].classList.add('on');
+      if (thumbs[cur]) thumbs[cur].classList.add('on');
+    }
+  });
+
+  /* Dot clicks */
+  dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); startAuto(); }); });
+
+  /* Thumbnail clicks */
+  thumbs.forEach(function(t, i) { t.addEventListener('click', function() { goTo(i); startAuto(); }); });
+
+  /* Pause auto on hover */
+  slides.addEventListener('mouseenter', function() { clearInterval(autoTimer); });
+  slides.addEventListener('mouseleave', startAuto);
+
+  startAuto();
+
+  /* ── OFFERS AUTO-SCROLL ── */
+  var offersEl = document.getElementById('ulluOffersScroll');
+  if (offersEl && {{ section.settings.auto_swipe }}) {
+    var dir = 1;
+    var paused = false;
+    offersEl.addEventListener('mouseenter', function() { paused = true; });
+    offersEl.addEventListener('mouseleave', function() { paused = false; });
+    offersEl.addEventListener('touchstart', function() { paused = true; }, { passive: true });
+    offersEl.addEventListener('touchend', function() { setTimeout(function(){ paused = false; }, 1500); });
+    setInterval(function() {
+      if (paused) return;
+      offersEl.scrollLeft += dir;
+      var atEnd   = offersEl.scrollLeft >= offersEl.scrollWidth - offersEl.clientWidth - 2;
+      var atStart = offersEl.scrollLeft <= 0;
+      if (atEnd)   dir = -1;
+      if (atStart) dir =  1;
+    }, {{ section.settings.swipe_speed }});
+  }
+
+  /* ── STICKY BAR ── */
+  var stickyBar = document.getElementById('ulluStickyBar');
+  if (stickyBar) {
+    function updateSticky() {
+      if (window.innerWidth <= 767) {
+        stickyBar.style.transform = 'translateY(0)';
+        return;
+      }
+      stickyBar.style.transform = window.scrollY > 400 ? 'translateY(0)' : 'translateY(110%)';
+    }
+    window.addEventListener('scroll', updateSticky, { passive: true });
+    updateSticky();
+  }
+
+})();
+
+/* ── COPY OFFER CODE ── */
+window.ulluCopyCode = function(btn) {
+  var code = btn.getAttribute('data-code');
+  var orig = btn.innerHTML; // Saves the HTML span structure
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).catch(function(){});
+  } else {
+    var el = document.createElement('textarea');
+    el.value = code; document.body.appendChild(el); el.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(el);
+  }
+  btn.innerHTML = 'COPIED!';
+  btn.classList.add('copied');
+  setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+};
+
+/* ── VARIANT SELECTION LOGIC ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var variantRadios = document.querySelectorAll('.ullu-variant-radio');
+  var variantIdInput = document.getElementById('ullu-variant-id');
+  var variantsJsonEl = document.getElementById('ProductVariantsData');
+  
+  if (!variantsJsonEl) return; // Exit if product has no variants
+  
+  var variantsData = JSON.parse(variantsJsonEl.textContent);
+
+  function updateSelectedVariant() {
+    // 1. Find which options are currently checked
+    var selectedOptions = [];
+    document.querySelectorAll('.ullu-option-fieldset').forEach(function(fieldset) {
+      var checkedRadio = fieldset.querySelector('.ullu-variant-radio:checked');
+      if (checkedRadio) {
+        selectedOptions.push(checkedRadio.value);
+      }
+    });
+
+    // 2. Find the variant in the JSON data that matches those exact options
+    var matchedVariant = variantsData.find(function(variant) {
+      return variant.options.every(function(option, index) {
+        return option === selectedOptions[index];
+      });
+    });
+
+    // 3. Update the hidden ID field so "Add to Cart" works correctly
+    if (matchedVariant) {
+      variantIdInput.value = matchedVariant.id;
+      
+      // Update the URL so sharing the link selects the right variant
+      window.history.replaceState({}, '', '?variant=' + matchedVariant.id);
+    }
+  }
+
+  // Run the check every time a user clicks a different size/color button
+  variantRadios.forEach(function(radio) {
+    radio.addEventListener('change', updateSelectedVariant);
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Ullukart Product Page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Gallery"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_auto",
+      "label": "Enable auto-slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "gallery_speed",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "unit": "sec",
+      "label": "Auto-slide interval",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Offers Carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_swipe",
+      "label": "Enable offers auto-scroll",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "swipe_speed",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "ms",
+      "label": "Offers scroll speed",
+      "info": "Lower = faster",
+      "default": 35
+    },
+    {
+      "type": "header",
+      "content": "Delivery & Returns"
+    },
+    {
+      "type": "richtext",
+      "id": "delivery_text",
+      "label": "Delivery & returns text",
+      "default": "<p>Ships within 1–2 business days. Free standard delivery on orders above ₹499. 10-day hassle-free returns on unused, undamaged items in original packaging.</p>"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "offer",
+      "name": "Offer card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "offer_icon",
+          "label": "Emoji icon",
+          "default": "🏷️"
+        },
+        {
+          "type": "text",
+          "id": "offer_title",
+          "label": "Offer title",
+          "default": "Flat ₹500 off"
+        },
+        {
+          "type": "text",
+          "id": "offer_subtitle",
+          "label": "Offer subtitle",
+          "default": "On orders above ₹5,000"
+        },
+        {
+          "type": "text",
+          "id": "offer_code",
+          "label": "Discount code (leave blank to hide copy button)",
+          "default": "ULLU500"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ullukart Product Page",
+      "blocks": [
+        { "type": "offer" },
+        { "type": "offer" },
+        { "type": "offer" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,255 @@
+{% schema %}
+{
+  "name": "Ullu-Kart Category Bubble",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical Padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "sec",
+      "label": "Auto-Swipe Speed",
+      "info": "How fast the categories slide automatically.",
+      "default": 3
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category Bubble",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Category Image",
+          "info": "Upload a square image (e.g., 200x200px)."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category Name",
+          "default": "Mobiles"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Category Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ullu-Kart Category Bubbles",
+      "blocks": [
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" },
+        { "type": "category" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .uk-categories-wrapper {
+    background-color: {{ section.settings.bg_color }};
+    padding: {{ section.settings.padding_vertical }}px 0;
+    width: 100%;
+    overflow: hidden;
+    perspective: 1000px; /* Activates 3D space */
+  }
+
+  .uk-categories-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    padding: 15px 15px; 
+    gap: 15px;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .uk-categories-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .uk-category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    flex: 0 0 auto;
+    width: 72px;
+  }
+
+  .uk-category-image-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 8px;
+    transform-style: preserve-3d;
+    
+    /* Base 3D Shadow with inner highlight for spherical look */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1), inset 0 -3px 6px rgba(0,0,0,0.05);
+    
+    /* Continuous 3D Floating Animation */
+    animation: float3D 4s ease-in-out infinite;
+  }
+
+  .uk-category-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .uk-category-title {
+    color: {{ section.settings.text_color }};
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 3D Float Keyframes - Lifts up, scales slightly, and rotates on X/Y axis */
+  @keyframes float3D {
+    0% { 
+      transform: translateY(0) scale(1) rotateX(0deg) rotateY(0deg); 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1), inset 0 -3px 6px rgba(0,0,0,0.05); 
+    }
+    50% { 
+      transform: translateY(-8px) scale(1.05) rotateX(10deg) rotateY(5deg); 
+      box-shadow: 0 15px 25px rgba(0,0,0,0.15), inset 0 -3px 6px rgba(0,0,0,0.02); 
+    }
+    100% { 
+      transform: translateY(0) scale(1) rotateX(0deg) rotateY(0deg); 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1), inset 0 -3px 6px rgba(0,0,0,0.05); 
+    }
+  }
+
+  /* Stagger the animation so they float in a wave pattern, not all at once */
+  .uk-category-item:nth-child(even) .uk-category-image-wrap {
+    animation-delay: 1s;
+  }
+  .uk-category-item:nth-child(3n) .uk-category-image-wrap {
+    animation-delay: 2s;
+  }
+
+  /* Desktop Adjustments - Fixed for PC */
+  @media (min-width: 769px) {
+    .uk-categories-scroll {
+      flex-wrap: nowrap; /* Forces a single row, no ugly grids */
+      justify-content: flex-start; /* Allows smooth scrolling if items overflow */
+      gap: 40px; /* More breathing room on PC */
+      max-width: 1200px; /* Keeps it contained on massive screens */
+      margin: 0 auto; /* Centers the entire block */
+      padding: 20px;
+    }
+    .uk-category-item { width: 110px; }
+    .uk-category-image-wrap { width: 90px; height: 90px; }
+    .uk-category-title { font-size: 14px; }
+    
+    .uk-category-item:hover .uk-category-image-wrap {
+      animation-play-state: paused;
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+    }
+  }
+</style>
+
+<div class="uk-categories-wrapper" id="ukCatWrapper-{{ section.id }}" data-speed="{{ section.settings.autoplay_speed | times: 1000 }}">
+  <div class="uk-categories-scroll" id="ukCatTrack-{{ section.id }}">
+    {% for block in section.blocks %}
+      <a href="{{ block.settings.link | default: '#' }}" class="uk-category-item" {{ block.shopify_attributes }}>
+        <div class="uk-category-image-wrap">
+          {% if block.settings.image %}
+            <img src="{{ block.settings.image | img_url: '200x200', crop: 'center' }}" alt="{{ block.settings.title | escape }}" loading="lazy">
+          {% else %}
+            <span style="font-size: 10px; color: #94a3b8;">Image</span>
+          {% endif %}
+        </div>
+        <div class="uk-category-title">{{ block.settings.title }}</div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('ukCatTrack-{{ section.id }}');
+    const wrapper = document.getElementById('ukCatWrapper-{{ section.id }}');
+    if (!track || !wrapper) return;
+
+    const speed = parseInt(wrapper.getAttribute('data-speed')) || 3000;
+    let autoPlayInterval;
+
+    function scrollToNextCat() {
+      // Only scroll if there are items overflowing off the screen
+      if (track.scrollWidth <= track.clientWidth) return;
+
+      const item = track.querySelector('.uk-category-item');
+      if (!item) return;
+      
+      const itemWidth = item.offsetWidth + parseInt(window.getComputedStyle(track).gap || 15);
+      const maxScroll = track.scrollWidth - track.clientWidth;
+
+      if (track.scrollLeft >= maxScroll - 10) {
+        track.scrollTo({ left: 0, behavior: 'smooth' }); // Loop back to start smoothly
+      } else {
+        track.scrollBy({ left: itemWidth, behavior: 'smooth' });
+      }
+    }
+
+    function startAutoPlay() {
+      autoPlayInterval = setInterval(scrollToNextCat, speed);
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlayInterval);
+    }
+
+    // Pause on user interaction (Mobile touch & PC mouse hover)
+    wrapper.addEventListener('touchstart', stopAutoPlay, {passive: true});
+    wrapper.addEventListener('touchend', startAutoPlay, {passive: true});
+    wrapper.addEventListener('mouseenter', stopAutoPlay);
+    wrapper.addEventListener('mouseleave', startAutoPlay);
+    
+    startAutoPlay();
+  });
+</script>
