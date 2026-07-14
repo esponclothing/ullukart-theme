@@ -475,7 +475,6 @@
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const listEl = document.getElementById('ullu-dynamic-coupons-list');
-        const cartTotal = {{ cart.total_price | divided_by: 100.0 }};
         
         function renderCartOffers() {
           if (!listEl) return;
@@ -484,22 +483,27 @@
             return;
           }
 
-          let bestCampaignCode = null;
-          let maxDiscountAmount = 0;
-          window.UlluCampaigns.forEach(campaign => {
-            if (cartTotal >= campaign.min_value) {
-              let currentDiscount = 0;
-              if (campaign.discount_type === 'percentage') {
-                currentDiscount = cartTotal * (campaign.discount_value / 100);
-              } else {
-                currentDiscount = campaign.discount_value;
-              }
-              if (currentDiscount > maxDiscountAmount) {
-                maxDiscountAmount = currentDiscount;
-                bestCampaignCode = campaign.code;
-              }
-            }
-          });
+          fetch(window.Shopify.routes.root + 'cart.js')
+            .then(response => response.json())
+            .then(cart => {
+              const cartTotal = cart.total_price / 100.0;
+              
+              let bestCampaignCode = null;
+              let maxDiscountAmount = 0;
+              window.UlluCampaigns.forEach(campaign => {
+                if (cartTotal >= campaign.min_value) {
+                  let currentDiscount = 0;
+                  if (campaign.discount_type === 'percentage') {
+                    currentDiscount = cartTotal * (campaign.discount_value / 100);
+                  } else {
+                    currentDiscount = campaign.discount_value;
+                  }
+                  if (currentDiscount > maxDiscountAmount) {
+                    maxDiscountAmount = currentDiscount;
+                    bestCampaignCode = campaign.code;
+                  }
+                }
+              });
           
           let html = '';
           window.UlluCampaigns.forEach(campaign => {
@@ -518,28 +522,40 @@
             let titleHtml = campaign.discount_type === 'percentage' 
               ? `Flat ${campaign.discount_value}% Off` 
               : `Flat ₹${campaign.discount_value} Off`;
-              
-            html += `
-              <div class="ullu-coupon-card" style="display: flex; justify-content: space-between; align-items: center; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; background: #f8fafc;">
-                <div class="ullu-coupon-left" style="display: flex; gap: 12px; align-items: center;">
-                  <div class="ullu-coupon-icon" style="background: #e2e8f0; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🏷️</div>
-                  <div class="ullu-coupon-details">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a; text-transform: uppercase;">${campaign.code}</h4>
-                    <p style="margin: 0 0 3px 0; font-size: 13px; color: #64748b;">${titleHtml}</p>
-                    <p style="margin: 0; font-size: 12px; color: #94a3b8;">On orders above ₹${campaign.min_value}</p>
+                    html += `
+                <div class="ullu-coupon-card" style="display: flex; justify-content: space-between; align-items: center; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; background: #f8fafc;">
+                  <div class="ullu-coupon-left" style="display: flex; gap: 12px; align-items: center;">
+                    <div class="ullu-coupon-icon" style="background: #e2e8f0; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🏷️</div>
+                    <div class="ullu-coupon-details">
+                      <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a; text-transform: uppercase;">${campaign.code}</h4>
+                      <p style="margin: 0 0 3px 0; font-size: 13px; color: #64748b;">${titleHtml}</p>
+                      <p style="margin: 0; font-size: 12px; color: #94a3b8;">On orders above ₹${campaign.min_value}</p>
+                    </div>
+                  </div>
+                  <div class="ullu-coupon-action">
+                    ${actionHtml}
                   </div>
                 </div>
-                <div class="ullu-coupon-action">
-                  ${actionHtml}
-                </div>
-              </div>
-            `;
-          });
-          listEl.innerHTML = html;
+              `;
+            });
+            listEl.innerHTML = html;
+          }).catch(e => console.error('Error fetching cart for offers:', e));
         }
 
-        // Wait a small amount for the defer script to load the window object
-        setTimeout(renderCartOffers, 300);
+        renderCartOffers();
+        
+        const ulluOffersObserver = new MutationObserver((mutations) => {
+          let shouldRun = false;
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              shouldRun = true;
+            }
+          });
+          if (shouldRun) {
+            setTimeout(renderCartOffers, 100);
+          }
+        });
+        ulluOffersObserver.observe(document.body, { childList: true, subtree: true });
       });
     </script>
 

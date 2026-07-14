@@ -146,9 +146,21 @@
     const code = document.getElementById('ullu-manual-discount').value.trim();
     if (code) {
       const btn = document.querySelector('#ullu-manual-discount').nextElementSibling;
-      btn.innerHTML = 'Applying...';
-      btn.style.opacity = '0.8';
-      window.location.href = `/checkout?discount=${code}`;
+      btn.innerHTML = 'Applied!';
+      btn.style.background = '#10b981';
+      btn.style.color = '#ffffff';
+      
+      const cartForm = document.getElementById('cart') || document.getElementById('CartDrawer-Form');
+      if (cartForm) {
+        let hiddenInput = cartForm.querySelector('input[name="discount"]');
+        if (!hiddenInput) {
+          hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'discount';
+          cartForm.appendChild(hiddenInput);
+        }
+        hiddenInput.value = code;
+      }
     }
   }
 
@@ -177,69 +189,77 @@
   function applyVisualCartDiscounts() {
     if (!window.UlluCampaigns || window.UlluCampaigns.length === 0) return;
     
-    const cartTotal = {{ cart.total_price | divided_by: 100.0 }};
-    
-    let bestCampaign = null;
-    let maxDiscountAmount = 0;
-    
-    for (const campaign of window.UlluCampaigns) {
-      if (cartTotal >= campaign.min_value) {
-        let currentDiscount = 0;
-        if (campaign.discount_type === 'percentage') {
-          currentDiscount = cartTotal * (campaign.discount_value / 100);
-        } else {
-          currentDiscount = campaign.discount_value;
+    fetch(window.Shopify.routes.root + 'cart.js')
+      .then(response => response.json())
+      .then(cart => {
+        const cartTotal = cart.total_price / 100.0;
+        
+        let bestCampaign = null;
+        let maxDiscountAmount = 0;
+        
+        for (const campaign of window.UlluCampaigns) {
+          if (cartTotal >= campaign.min_value) {
+            let currentDiscount = 0;
+            if (campaign.discount_type === 'percentage') {
+              currentDiscount = cartTotal * (campaign.discount_value / 100);
+            } else {
+              currentDiscount = campaign.discount_value;
+            }
+            
+            if (currentDiscount > maxDiscountAmount) {
+              maxDiscountAmount = currentDiscount;
+              bestCampaign = campaign;
+            }
+          }
         }
         
-        if (currentDiscount > maxDiscountAmount) {
-          maxDiscountAmount = currentDiscount;
-          bestCampaign = campaign;
+        if (bestCampaign && maxDiscountAmount > 0) {
+          const cartForm = document.getElementById('cart') || document.getElementById('CartDrawer-Form');
+          if (cartForm) {
+            let hiddenInput = cartForm.querySelector('input[name="discount"]');
+            if (!hiddenInput) {
+              hiddenInput = document.createElement('input');
+              hiddenInput.type = 'hidden';
+              hiddenInput.name = 'discount';
+              cartForm.appendChild(hiddenInput);
+            }
+            if (!hiddenInput.value || hiddenInput.dataset.autoApplied) {
+              hiddenInput.value = bestCampaign.code;
+              hiddenInput.dataset.autoApplied = 'true';
+            }
+          }
+          
+          const totalsContainers = document.querySelectorAll('.totals');
+          const newTotal = Math.max(0, cartTotal - maxDiscountAmount);
+          const currencySymbol = '₹'; 
+          
+          totalsContainers.forEach(container => {
+            if (container.classList.contains('ullu-discount-applied')) return;
+            
+            const totalValueEl = container.querySelector('.totals__total-value');
+            if (totalValueEl) {
+              container.classList.add('ullu-discount-applied');
+              
+              const originalPriceHtml = totalValueEl.innerHTML;
+              
+              const discountHtml = `
+                <div class="ullu-visual-discount" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; color: #10b981; font-size: 1.4rem; width: 100%;">
+                  <span>Campaign Discount:</span>
+                  <span>-${currencySymbol}${maxDiscountAmount.toFixed(2)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 1.8rem; font-weight: bold; width: 100%;">
+                  <span>New Total:</span>
+                  <span>${currencySymbol}${newTotal.toFixed(2)}</span>
+                </div>
+              `;
+              
+              totalValueEl.innerHTML = `<span style="font-size: 0.8em; color: #94a3b8;">${originalPriceHtml}</span>`;
+              container.insertAdjacentHTML('afterend', discountHtml);
+            }
+          });
         }
-      }
-    }
-    
-    if (bestCampaign && maxDiscountAmount > 0) {
-      // 1. Inject hidden input for checkout
-      const cartForm = document.getElementById('cart') || document.getElementById('CartDrawer-Form');
-      if (cartForm && !cartForm.querySelector('input[name="discount"]')) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'discount';
-        input.value = bestCampaign.code;
-        cartForm.appendChild(input);
-      }
-      
-      // 2. Visually update totals
-      const totalsContainers = document.querySelectorAll('.totals');
-      const newTotal = Math.max(0, cartTotal - maxDiscountAmount);
-      const currencySymbol = '₹'; 
-      
-      totalsContainers.forEach(container => {
-        // PREVENT INFINITE LOOP BY CHECKING FOR OUR CLASS
-        if (container.classList.contains('ullu-discount-applied')) return;
-        
-        const totalValueEl = container.querySelector('.totals__total-value');
-        if (totalValueEl) {
-          container.classList.add('ullu-discount-applied');
-          
-          const originalPriceHtml = totalValueEl.innerHTML;
-          
-          const discountHtml = `
-            <div class="ullu-visual-discount" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; color: #10b981; font-size: 1.4rem; width: 100%;">
-              <span>Campaign Discount:</span>
-              <span>-${currencySymbol}${maxDiscountAmount.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 1.8rem; font-weight: bold; width: 100%;">
-              <span>New Total:</span>
-              <span>${currencySymbol}${newTotal.toFixed(2)}</span>
-            </div>
-          `;
-          
-          totalValueEl.innerHTML = `<span style="font-size: 0.8em; color: #94a3b8;">${originalPriceHtml}</span>`;
-          container.insertAdjacentHTML('afterend', discountHtml);
-        }
-      });
-    }
+      })
+      .catch(e => console.error('Error fetching cart:', e));
   }
 
   document.addEventListener('DOMContentLoaded', applyVisualCartDiscounts);
