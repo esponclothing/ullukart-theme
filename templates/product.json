@@ -1,9 +1,18 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-product",
       "blocks": {
-        "offer_DUiENE": {
+        "offer_nkvpfa": {
           "type": "offer",
           "settings": {
             "offer_icon": "🏷️",
@@ -11,37 +20,17 @@
             "offer_subtitle": "On orders above ₹1000",
             "offer_code": "ULLU400"
           }
-        },
-        "offer_V8fpLN": {
-          "type": "offer",
-          "settings": {
-            "offer_icon": "🏷️",
-            "offer_title": "Flat ₹500 Off",
-            "offer_subtitle": "On orders above ₹5000",
-            "offer_code": "ULLU500"
-          }
-        },
-        "offer_g7wNqW": {
-          "type": "offer",
-          "settings": {
-            "offer_icon": "🏷️",
-            "offer_title": "Flat ₹500 Off",
-            "offer_subtitle": "On orders above ₹5000",
-            "offer_code": "ULLU500"
-          }
         }
       },
       "block_order": [
-        "offer_DUiENE",
-        "offer_V8fpLN",
-        "offer_g7wNqW"
+        "offer_nkvpfa"
       ],
       "settings": {
         "gallery_auto": true,
         "gallery_speed": 3,
         "auto_swipe": false,
         "swipe_speed": 20,
-        "delivery_text": "<p>Ships within 1-2 business days. Free standard delivery on orders above ₹499. 10-day hassle-free returns on unused, undamaged items in original packaging.<\/p>"
+        "delivery_text": "<p>Ships within 1-2 business days. Free standard delivery on orders above ₹499. 10-day hassle-free returns on unused, undamaged items in original packaging.</p>"
       }
     },
     "related-products": {
