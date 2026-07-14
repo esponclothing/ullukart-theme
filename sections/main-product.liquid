@@ -380,21 +380,21 @@
           <input type="hidden" name="id" id="ullu-variant-id" value="{{ product.selected_or_first_available_variant.id }}">
           <input type="hidden" name="quantity" value="1" id="ullu-qty-hidden">
           
-          <div style="display: flex; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 100px; padding: 5px 15px; height: 56px;">
-              <button type="button" onclick="document.getElementById('ullu-qty').stepDown(); document.getElementById('ullu-qty-hidden').value = document.getElementById('ullu-qty').value;" style="font-size: 22px; color: #0f172a; background: none; border: none; cursor: pointer; padding: 0 5px;">-</button>
-              <input type="number" id="ullu-qty" value="1" min="1" style="width: 45px; text-align: center; border: none; font-size: 16px; font-weight: 600; color: #0f172a; background: transparent; outline: none;" onchange="document.getElementById('ullu-qty-hidden').value = this.value;">
-              <button type="button" onclick="document.getElementById('ullu-qty').stepUp(); document.getElementById('ullu-qty-hidden').value = document.getElementById('ullu-qty').value;" style="font-size: 20px; color: #0f172a; background: none; border: none; cursor: pointer; padding: 0 5px;">+</button>
+          <div style="display: flex; gap: 8px; width: 100%;">
+            <div style="display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 100px; padding: 5px 8px; height: 56px; flex-shrink: 0;">
+              <button type="button" onclick="document.getElementById('ullu-qty').stepDown(); document.getElementById('ullu-qty-hidden').value = document.getElementById('ullu-qty').value;" style="font-size: 20px; color: #0f172a; background: none; border: none; cursor: pointer; padding: 0 5px;">-</button>
+              <input type="number" id="ullu-qty" value="1" min="1" style="width: 30px; text-align: center; border: none; font-size: 16px; font-weight: 600; color: #0f172a; background: transparent; outline: none;" onchange="document.getElementById('ullu-qty-hidden').value = this.value;">
+              <button type="button" onclick="document.getElementById('ullu-qty').stepUp(); document.getElementById('ullu-qty-hidden').value = document.getElementById('ullu-qty').value;" style="font-size: 18px; color: #0f172a; background: none; border: none; cursor: pointer; padding: 0 5px;">+</button>
             </div>
             
-            <button type="submit" name="add" class="ullu-btn-cart product-form__submit" style="flex: 1;">
-              <i class="ti ti-shopping-cart" aria-hidden="true"></i> <span>Add to Cart</span>
+            <button type="submit" name="add" class="ullu-btn-cart product-form__submit" style="flex: 1; padding: 0 10px;">
+              <i class="ti ti-shopping-cart" aria-hidden="true" style="font-size: 20px;"></i> <span>Cart</span>
+            </button>
+
+            <button type="button" class="ullu-btn-cart ullu-btn-buy-now" onclick="buyNowCheckout()" style="flex: 1; padding: 0 10px;">
+              <i class="ti ti-bolt" aria-hidden="true" style="font-size: 20px;"></i> <span>Buy Now</span>
             </button>
           </div>
-
-          <button type="button" class="ullu-btn-buy-now" onclick="buyNowCheckout()" style="margin-top: 10px; width: 100%; height: 56px; background: #10b981; color: #ffffff; font-size: 16px; font-weight: 600; border-radius: 100px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25); transition: all 0.3s; font-family: 'Outfit', sans-serif;">
-            <i class="ti ti-bolt" aria-hidden="true" style="font-size: 22px;"></i> <span>Buy Now</span>
-          </button>
         {% endform %}
       </div>
 
