@@ -43,6 +43,12 @@
             {%- when '@app' -%}
               {% render block %}
             {%- when 'subtotal' -%}
+              <div style="margin-bottom: 20px; width: 100%;">
+                <div style="display: flex; gap: 8px; width: 100%;">
+                  <input type="text" id="ullu-manual-discount" placeholder="Have a coupon code?" style="flex: 1; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none; font-family: 'Outfit', sans-serif; font-size: 14px; background: #f8fafc; color: #0f172a; font-weight: 500;">
+                  <button type="button" onclick="applyManualDiscount()" style="background: #0f172a; color: #ffffff; border: none; border-radius: 8px; padding: 0 20px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.3s;">Apply</button>
+                </div>
+              </div>
               <div class="js-contents" {{ block.shopify_attributes }}>
                 <div>
                   {%- if cart.cart_level_discount_applications.size > 0 -%}
@@ -104,13 +110,6 @@
                 </small>
               </div>
             {%- else -%}
-              <div style="margin-bottom: 15px; width: 100%;">
-                <div style="display: flex; gap: 8px; width: 100%;">
-                  <input type="text" id="ullu-manual-discount" placeholder="Have a coupon code?" style="flex: 1; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 8px; outline: none; font-family: 'Outfit', sans-serif; font-size: 14px; background: #f8fafc; color: #0f172a; font-weight: 500;">
-                  <button type="button" onclick="applyManualDiscount()" style="background: #0f172a; color: #ffffff; border: none; border-radius: 8px; padding: 0 20px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.3s;">Apply</button>
-                </div>
-              </div>
-
               <div class="cart__ctas" {{ block.shopify_attributes }}>
 
                 <button
