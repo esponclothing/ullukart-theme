@@ -1,0 +1,1 @@
+window.UlluCampaigns = [{"code":"ULLU400","min_value":0,"discount_value":0,"discount_type":"percentage"},{"code":"test10","min_value":0,"discount_value":10,"discount_type":"percentage"}];

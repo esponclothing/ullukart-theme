@@ -12,7 +12,7 @@
     "main": {
       "type": "main-product",
       "blocks": {
-        "offer_nkvpfa": {
+        "offer_3y0f4c": {
           "type": "offer",
           "settings": {
             "offer_icon": "🏷️",
@@ -20,10 +20,20 @@
             "offer_subtitle": "On orders above ₹1000",
             "offer_code": "ULLU400"
           }
+        },
+        "offer_kafza5": {
+          "type": "offer",
+          "settings": {
+            "offer_icon": "🏷️",
+            "offer_title": "Flat 10% Off",
+            "offer_subtitle": "Sitewide Campaign",
+            "offer_code": "test10"
+          }
         }
       },
       "block_order": [
-        "offer_nkvpfa"
+        "offer_3y0f4c",
+        "offer_kafza5"
       ],
       "settings": {
         "gallery_auto": true,
