@@ -141,15 +141,25 @@
     const cartTotal = {{ cart.total_price | divided_by: 100.0 }};
     
     let bestCampaign = null;
+    let maxDiscountAmount = 0;
+    
     for (const campaign of window.UlluCampaigns) {
       if (cartTotal >= campaign.min_value) {
-        if (!bestCampaign || campaign.min_value > bestCampaign.min_value) {
+        let currentDiscount = 0;
+        if (campaign.discount_type === 'percentage') {
+          currentDiscount = cartTotal * (campaign.discount_value / 100);
+        } else {
+          currentDiscount = campaign.discount_value;
+        }
+        
+        if (currentDiscount > maxDiscountAmount) {
+          maxDiscountAmount = currentDiscount;
           bestCampaign = campaign;
         }
       }
     }
     
-    if (bestCampaign) {
+    if (bestCampaign && maxDiscountAmount > 0) {
       // 1. Inject hidden input for checkout
       const cartForm = document.getElementById('cart') || document.getElementById('CartDrawer-Form');
       if (cartForm && !cartForm.querySelector('input[name="discount"]')) {
@@ -162,30 +172,25 @@
       
       // 2. Visually update totals
       const totalsContainers = document.querySelectorAll('.totals');
-      
-      let discountAmount = 0;
-      if (bestCampaign.discount_type === 'percentage') {
-        discountAmount = cartTotal * (bestCampaign.discount_value / 100);
-      } else {
-        discountAmount = bestCampaign.discount_value;
-      }
-      
-      const newTotal = Math.max(0, cartTotal - discountAmount);
+      const newTotal = Math.max(0, cartTotal - maxDiscountAmount);
       const currencySymbol = '₹'; 
       
       totalsContainers.forEach(container => {
-        if (container.querySelector('.ullu-visual-discount')) return;
+        // PREVENT INFINITE LOOP BY CHECKING FOR OUR CLASS
+        if (container.classList.contains('ullu-discount-applied')) return;
         
         const totalValueEl = container.querySelector('.totals__total-value');
         if (totalValueEl) {
+          container.classList.add('ullu-discount-applied');
+          
           const originalPriceHtml = totalValueEl.innerHTML;
           
           const discountHtml = `
-            <div class="ullu-visual-discount" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; color: #10b981; font-size: 1.4rem;">
+            <div class="ullu-visual-discount" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; color: #10b981; font-size: 1.4rem; width: 100%;">
               <span>Campaign Discount:</span>
-              <span>-${currencySymbol}${discountAmount.toFixed(2)}</span>
+              <span>-${currencySymbol}${maxDiscountAmount.toFixed(2)}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 1.8rem; font-weight: bold;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 1.8rem; font-weight: bold; width: 100%;">
               <span>New Total:</span>
               <span>${currencySymbol}${newTotal.toFixed(2)}</span>
             </div>
