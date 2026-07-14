@@ -29,11 +29,33 @@
             "offer_subtitle": "Sitewide Campaign",
             "offer_code": "test10"
           }
+        },
+        "urgency_bar_1": {
+          "type": "urgency_bar",
+          "settings": {
+            "text": "🔥 High Demand! Only 12 items left in stock.",
+            "percentage": 15
+          }
+        },
+        "description_1": {
+          "type": "description",
+          "settings": {
+            "heading": "Product description"
+          }
+        },
+        "specifications_1": {
+          "type": "specifications",
+          "settings": {
+            "heading": "Specifications"
+          }
         }
       },
       "block_order": [
         "offer_3y0f4c",
-        "offer_kafza5"
+        "offer_kafza5",
+        "urgency_bar_1",
+        "description_1",
+        "specifications_1"
       ],
       "settings": {
         "gallery_auto": true,
